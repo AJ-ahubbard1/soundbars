@@ -1,0 +1,16 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 95%;
+    margin: 10px auto;
+    display: flex;
+    justify-content: center;
+}
+
+#sbCanvas {
+    border:1px solid #d3d3d3;
+    margin: auto;
+}
