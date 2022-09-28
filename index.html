@@ -6,16 +6,52 @@
 </head>
 <body onload="init()">
     <div class="container">
-        <div class="dropdown">
-            <button class="dropdown-btn">Pitches</button>
-            <div class="dropdown-menu">
-              <button class="menu-btn">Link 1</button>
-              <button class="menu-btn">Link 2</button>
-              <button class="menu-btn">Link 3</button>
-            </div>
+        <!--
+            <span class="dropdown">
+                <button class="dropdown-btn">Pitches</button>
+                <div class="dropdown-menu">
+                    <button class="menu-btn">Link 1</button>
+                    <button class="menu-btn">Link 2</button>
+                    <button class="menu-btn">Link 3</button>
+                </div>
+            </span>
+        -->
+        <div class="menu">
+            <span class="sliders">
+                <label id="framerate-label" for="framerate">FrameRate: </label><br>
+                <input type="range" id="framerate" name="framerate" step="2" min="30" max="240">
+            </span>
+            <span class="sliders">
+            <label id="gravity-label" for="gravity">Gravity: </label><br>
+            <input type="range" id="gravity" name="gravity" step=".001" min=".001" max=".2">
+            </span>
+            <span class="sliders">
+                <label id="collision-label" for="collision">Collision Threshold: </label><br>
+                <input type="range" id="collision" name="collision" step=".05" min=".05" max="2">
+            </span>
+            <span class="sliders">
+                <label id="ballradius-label" for="ballradius">Ball Radius: </label><br>
+                <input type="range" id="ballradius" name="ballradius" step="1" min="2" max="20">
+            </span>
+            <span class="sliders">
+                <label id="pitch-label" for="pitch">00</label><br>
+                <select id="pitch" name="pitch" onchange="pitchMethod()">
+                    <option value="">--pitch mapping method--</option>
+                    <option value="random">random</option>
+                    <option value="cosine">cos(ball velocity)</option>
+                    <option value="sine">sin(ball velocity)</option>
+                    <option value="line-length">line-length</option>
+                </select>
+            </span>
+            <span class="sliders">
+                <label for="playback">Playback: </label><br>
+                <button id="clear-balls" onclick="clearBalls()">clear balls</button>
+                <button id="pause" onclick="pauseFrames()">||</button>
+                <button id="play" onclick="startFrames()">></button>
+            </span>
         </div>
-        <br>
-        <canvas id="sbCanvas"></canvas>
+        <canvas id="sbCanvas">
+        </canvas>
     </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.43/Tone.js" integrity="sha512-n7wMz32h+9PqvKp0AJ++fkZxe9wP7XFiN2sCgM/Kp+8BgfNzMjSofcC6zSRAr4+WKPnqv1k8SjbgVW5E5K5n5w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="script.js"></script>

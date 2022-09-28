@@ -27,44 +27,106 @@
     font-size: 16px;
     border: none;
     cursor: pointer;
+}
 
-  }
-  
-  /* The container <div> - needed to position the dropdown content */
-  .dropdown {
-    position: relative;
-    display: inline-block;
-    z-index: 2;
-  }
-  
-  /* Dropdown Content (Hidden by Default) */
-  .dropdown-menu {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: fit-content;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 2;
-  }
-  
-  /* Links inside the dropdown */
-  .dropdown-menu button {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    z-index: 2;
-  }
-  
-  /* Change color of dropdown links on hover */
-  .dropdown-menu button:hover {background-color: #f1f1f1}
-  
-  /* Show the dropdown menu on hover */
-  .dropdown:hover .dropdown-menu {
-    display: block;
-  }
-  
-  /* Change the background color of the dropdown button when the dropdown content is shown */
-  .dropdown:hover .dropdown-btn {
-    background-color: #3e8e41;
-  }
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  z-index: 2;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: fit-content;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 2;
+}
+
+/* Links inside the dropdown */
+.dropdown-menu button {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  z-index: 2;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-menu button:hover {background-color: #f1f1f1}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropdown-btn {
+  background-color: #3e8e41;
+}
+.menu {
+  max-height: 50px;
+  display: flex;
+}
+.sliders {
+  display: inline-block;
+  font-size: 10px;
+  justify-content: center;
+  min-height: 50px;
+  min-width: 160px;
+  text-align: center;
+  background-color: #91d2ee;
+  margin: 0 2px;
+  padding: 0;
+  border-radius: 2px;
+  border: 1px solid #333;
+
+}
+.sliders label {
+  text-align: center;
+  font-size: 12px;
+}
+.sliders button {
+  padding: 1px 2px;
+  margin-top: 2px;
+}
+
+input[type=range] {
+  width: 100%;
+  align-self: center;
+}
+
+select {
+  height: 30px;
+  width: 90%;
+}
+
+.hide {
+  visibility: hidden;
+}
+
+#ready {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: max-content;
+  height: auto;
+  background-color: #91d2ee;
+  text-align: center;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid #333;
+}
+#ready h3 {
+  margin: 8px;
+}
+#ready button {
+  color: black;
+  padding: 6px 8px;
+  text-decoration: none;
+  z-index: 2;
+}
