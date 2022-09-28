@@ -1,37 +1,44 @@
 // script.js
 // FRONTEND JS FOR SOUNDBARS
 
-// CONSTS
-const WIDTH = 600;
-const HEIGHT = 300;
-const FRAME_RATE = 96;
-const FRAMES_PER_BALL = 500; 
-const GRAVITY = .03;
-const COLLISION_THRESHOLD = .3;
-// GAME COLORS
-const BG_COLOR = '#EEE';
+const settings = {
+    width: 1200,
+    height: 600,
+    frameRate: 120,
+    gravity: 0.02,
+    collisionThreshold: 0.1,
+    backgroundColor: '#EEE',
+    numNotes: 48,
+    menuHeight: 50,
+}
 
-// GLOBAL VARIABLES
+const NOTES = [
+    "C2", "C#2", "D2", "D#2", "E2", "F2", "F#2", "G2", "G#2", "A2", "A#2", "B2",
+    "C3", "C#3", "D3", "D#3", "E3", "F3", "F#3", "G3", "G#3", "A3", "A#3", "B3",
+    "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4",
+    "C5", "C#5", "D5", "D#5", "E5", "F5", "F#5", "G5", "G#5", "A5", "A#5", "B5",
+];
+
 const state = {
     frameCounter: 0,
     point: {x: -1, y: -1},
     mousePos: {x: -1, y: -1},
-    lines: [],
+    lines: [],                  //p1, p2, color
     balls: [],
-    droppers: [],
+    droppers: [],               //x, y, framesPerDrop
     currentColor: '#0033FF',
 }
+
 let canvas, ctx;
+let synth = null;
 
 function init() {
-    console.log("test");
-    
     canvas = document.getElementById("sbCanvas");
     ctx = canvas.getContext('2d');
-    canvas.width = WIDTH;
-    canvas.height = HEIGHT;
+    setCanvasResolution();
     
-    state.droppers.push({x: 40, y: 10});
+    synth = new Tone.Synth().toDestination();
+    state.droppers.push({x: 40, y: 10, framesPerDrop: 500});
 
     clearCanvas();
     // ADDING EVENT LISTENERS
@@ -41,21 +48,19 @@ function init() {
 };
 
 function handleClick(e) {
-    console.log("click: ", e.offsetX, e.offsetY, state.point);
+    // If on first click, save point
+    // Else get second point, and create a line, reset state.point to -1
     if(state.point.x === -1) {
         state.point = {
             x: e.offsetX, 
             y: e.offsetY
         };
-        console.log('assigned point');
     }
     else {
         // Disregards lines with two identical points
         if(state.point.x === e.offsetX && state.point.y === e.offsetY) {
             return;
         }
-
-        console.log("created a line");
         let p1 = state.point;
         let p2 = {x: e.offsetX, y: e.offsetY};
         // always have p1 be left point
@@ -80,24 +85,36 @@ function mouseMove(e) {
 function startFrames() {
     const id = setInterval(() => {
         update();
-    }, 1000/ FRAME_RATE);
+    }, 1000/ settings.frameRate);
+}
+
+function setCanvasResolution() {
+    settings.width = window.innerWidth;
+    settings.height = window.innerHeight - settings.menuHeight;
+    canvas.width = settings.width;
+    canvas.height = settings.height;
 }
 
 function update() {
     state.frameCounter++;
 
-    if(state.frameCounter % FRAMES_PER_BALL === 0) {
-        addBall();
+    if(settings.width !== window.innerWidth && settings.height !== window.innerHeight - settings.menuHeight) {
+        setCanvasResolution();
     }
+    state.droppers.forEach((dropper) => {
+        if(state.frameCounter % dropper.framesPerDrop === 0) {
+            addBall(dropper);
+        }
+    })
 
     state.balls.forEach((ball) => {
         ball.x += ball.velX;
         ball.y += ball.velY;
-        ball.velY += GRAVITY;
+        ball.velY += settings.gravity;
     })
     
     state.balls = state.balls.filter((ball) => {
-        if(ball.y > HEIGHT || ball.x < 0 || ball.x > WIDTH) {
+        if(ball.y > settings.height || ball.x < 0 || ball.x > settings.width) {
             console.log("ball removed");
             return false;
         }
@@ -114,7 +131,7 @@ function update() {
             let distance1 = getDistance(ballPos, line.p1);
             let distance2 = getDistance(ballPos, line.p2);
             // Collision Detected
-            if (distance1 + distance2 - lineDistance <= COLLISION_THRESHOLD) {
+            if (distance1 + distance2 - lineDistance <= settings.collisionThreshold) {
                 state.balls[b] = handleBounce(state.balls[b], line);
             }
         }
@@ -139,7 +156,7 @@ function handleBounce(ball, line) {
     }
     let lineNormal = lineAngle - Math.PI*.5;
     if (ballAngle > 0) {
-        lineNormal = lineAngle + Math.PI*.5;    
+        lineNormal = line,Angle + Math.PI*.5;        
     }
     let reflectionAngle = 2*lineNormal - ballAngle;
     
@@ -147,7 +164,11 @@ function handleBounce(ball, line) {
     ball.velX = Math.cos(reflectionAngle) * velocityVector;
     ball.velY = Math.sin(reflectionAngle) * velocityVector;
 
-    console.log(ballAngle, lineAngle, lineNormal, reflectionAngle);
+    // Add Methods for choosing notes
+    let note = Math.floor(Math.abs(Math.sin(velocityVector) * settings.numNotes));
+
+    // Add Instrument choices
+    synth.triggerAttackRelease(NOTES[note], "8n");
     return ball;
 }
 
@@ -173,16 +194,13 @@ function paintCanvas() {
     state.balls.forEach(drawBall);
 }
 
-function addBall() {
-    console.log("Ball added");
-    state.droppers.forEach((pos) => {
-        state.balls.push({x:pos.x, y: pos.y, velX: 0, velY: GRAVITY})
-    })
+function addBall(dropper) {
+    state.balls.push({x: dropper.x, y: dropper.y, velX: 0, velY: settings.gravity})
 }
 
 function clearCanvas() {
-    ctx.fillStyle = BG_COLOR;
-    ctx.fillRect(0, 0, WIDTH, HEIGHT);
+    ctx.fillStyle = settings.backgroundColor;
+    ctx.fillRect(0, 0, settings.width, settings.height);
 }
 
 function drawLine(line) {
