@@ -7,6 +7,7 @@ const settings = {
     frameRate: 120,
     gravity: 0.02,
     collisionThreshold: 0.1,
+    clickThreshold: 8,
     backgroundColor: '#EEE',
     numNotes: 36,
     menuHeight: 50,
@@ -48,6 +49,8 @@ const state = {
     droppers: [],               //x, y, framesPerDrop
     currentColor: '#0033FF',
     keyPresses: [],
+    isPaused: false,
+    settingDropper: null
 }
 
 const doc = {
@@ -112,8 +115,16 @@ function init() {
         console.log(e.key);
         state.keyPresses[e.key] = true;
     })
-    
+
+    window.addEventListener('keyup', function (e) {
+        state.keyPresses[e.key] = false;
+    })
+
     doc.synth = new Tone.Synth().toDestination();
+    //doc.synth = new Tone.MembraneSynth().toDestination();
+    //doc.synth = new Tone.PluckSynth().toDestination();
+    //doc.synth = new Tone.MetalSynth().toDestination();
+
     startFrames();
 };
 
@@ -144,7 +155,10 @@ function clearBalls() {
 }
 
 function pauseFrames() {
-    clearInterval(state.timerId);
+    state.isPaused = true;
+}
+function resumeFrames() {
+    state.isPaused = false;
 }
 
 function pitchMethod() {
@@ -152,13 +166,45 @@ function pitchMethod() {
 }
 
 function handleClick(e) {
+    let clickP = {x: e.offsetX, y: e.offsetY,};
     // If on first click, save point
     // Else get second point, and create a line, reset state.point to -1
-    if(state.point.x === -1) {
-        state.point = {
-            x: e.offsetX, 
-            y: e.offsetY
-        };
+    if(state.settingDropper) {
+        state.settingDropper.x = clickP.x;
+        state.settingDropper.y = clickP.y;
+        state.droppers.push(state.settingDropper);
+        state.settingDropper = null;
+    }
+    else if(state.point.x === -1) {
+        let d1,d2;
+        // Moving objects on canvas
+        if (state.keyPresses["Shift"]) {
+            
+            let clickedLine = state.lines.find((line) => {
+                d1 = getDistance(line.p1,clickP);
+                d2 = getDistance(line.p2,clickP);
+                return (d1 <= settings.clickThreshold || d2 <= settings.clickThreshold);
+            })
+            if(clickedLine) {
+                state.lines = state.lines.filter(line => {return line !== clickedLine});
+                if(d1<=settings.clickThreshold) {
+                    state.point = clickedLine.p2;
+                } else {
+                    state.point = clickedLine.p1;
+                }
+            } else {
+                let clickedDropper = state.droppers.find((dropper) => {
+                    d1 = getDistance(dropper, clickP);
+                    return (d1 <= settings.clickThreshold);
+                })
+                if (clickedDropper) {
+                    state.settingDropper = clickedDropper;
+                    state.droppers = state.droppers.filter(dropper => {return dropper !== clickedDropper});
+                }
+            }
+        } else {
+            state.point = clickP;
+        }
     }
     else {
         // Disregards lines with two identical points
@@ -181,9 +227,6 @@ function handleClick(e) {
     }
 }
 
-
-
-
 function mouseMove(e) {
     state.mousePos.x = e.offsetX;
     state.mousePos.y = e.offsetY;
@@ -204,14 +247,30 @@ function setCanvasResolution() {
 
 function keyboardInputs() {
     if(state.keyPresses["Backspace"] && state.lines.length > 0) {
-        state.lines.pop();
+        if(state.point.x !== -1) {
+            state.point = {x:-1, y:-1};
+        } else {
+            state.lines.pop();
+        }
         state.keyPresses["Backspace"] = false;
+    }
+    if(state.keyPresses[" "]) {
+        state.isPaused = !state.isPaused;
+        state.keyPresses[" "] = false;
     }
 }
 
 function update() {
-    state.frameCounter++;
 
+    if(!state.isPaused) {
+        state.frameCounter++;
+        // update ball physics
+        state.balls.forEach((ball) => {
+            ball.x += ball.velX;
+            ball.y += ball.velY;
+            ball.velY += settings.gravity;
+        })
+    }
     keyboardInputs();
     // update canvas resolution on window size changes
     if(settings.width !== window.innerWidth && settings.height !== window.innerHeight - settings.menuHeight) {
@@ -222,12 +281,6 @@ function update() {
         if(state.frameCounter % dropper.framesPerDrop === 0) {
             addBall(dropper);
         }
-    })
-    // update ball physics
-    state.balls.forEach((ball) => {
-        ball.x += ball.velX;
-        ball.y += ball.velY;
-        ball.velY += settings.gravity;
     })
     // filter out balls that fall off the screen
     state.balls = state.balls.filter((ball) => {
@@ -303,13 +356,18 @@ function handleBounce(ball, line, lineLength) {
     // Add Instrument choices
 
     doc.pitchLabel.innerHTML = NOTES[note];
-    doc.synth.triggerAttackRelease(NOTES[note], "8n");
+    doc.synth.triggerAttackRelease(NOTES[note], "2n");
     return ball;
 }
 
 function paintCanvas() {
     clearCanvas();  
 
+    if(state.settingDropper) {
+        state.settingDropper.x = state.mousePos.x;
+        state.settingDropper.y = state.mousePos.y;
+        drawBall(state.settingDropper, '#666');
+    }
     state.droppers.forEach(dropper => drawBall(dropper, '#666'));
     
     // draw line after point is placed

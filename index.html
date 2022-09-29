@@ -39,7 +39,6 @@
                     <option value="">--pitch mapping method--</option>
                     <option value="random">random</option>
                     <option value="cosine">cos(ball velocity)</option>
-                    <option value="sine">sin(ball velocity)</option>
                     <option value="line-length">line-length</option>
                 </select>
             </span>
@@ -47,7 +46,7 @@
                 <label for="playback">Playback: </label><br>
                 <button id="clear-balls" onclick="clearBalls()">clear balls</button>
                 <button id="pause" onclick="pauseFrames()">||</button>
-                <button id="play" onclick="startFrames()">></button>
+                <button id="play" onclick="resumeFrames()">></button>
             </span>
         </div>
         <canvas id="sbCanvas">
