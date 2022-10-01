@@ -154,6 +154,8 @@ function init() {
         baseUrl: "https://tonejs.github.io/audio/casio/",
     }).toDestination();
     doc.synth[2] = new Tone.PluckSynth().toDestination();
+    doc.synth[3] = new Tone.FMSynth().toDestination();
+
     startFrames();
 };
 // Event Handlers
