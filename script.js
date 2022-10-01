@@ -13,7 +13,9 @@ const settings = {
     menuHeight: 50,
     ballradius: 4,
     pitch: "cosine",
-    instrument: 0
+    instrument: 0,
+    numInstruments: 0,
+    instrumentList: [],
 }
 
 const NOTES = [
@@ -66,9 +68,17 @@ const doc = {
         {id: "ballradius", input: null, label: null},
         {id: "pitch", input: null, label: null},
         {id: "instrument", input: null, label: null},
-
     ],
 }
+const getMenu = (id) => {return doc.menu.find((m) => {return m.id === id})}
+
+const addInstrumentOption = (instrument) => {
+    let option = document.createElement('option'); 
+    option.textContent = instrument;
+    option.value = settings.numInstruments++;
+    let m = getMenu("instrument").input.appendChild(option);
+}
+
 
 const updateMenu = (menu) => {
     menu.input = document.getElementById(menu.id);
@@ -104,10 +114,6 @@ function init() {
         state.keyPresses[e.key] = false;
     })
 
-    //doc.synth = new Tone.Synth().toDestination();
-    //doc.synth = new Tone.MembraneSynth().toDestination();
-    //doc.synth = new Tone.PluckSynth().toDestination();
-    //doc.synth = new Tone.MetalSynth().toDestination();
     doc.synth[0] = new Tone.Sampler({
         urls: {
             /* note map for salamander piano */
@@ -144,8 +150,7 @@ function init() {
         },
         release: 1,
         baseUrl: "https://tonejs.github.io/audio/salamander/"    
-    }).toDestination();
-    
+    }).toDestination();    
     doc.synth[1] = new Tone.Sampler({
         urls: {
             "A1": "A1.mp3",
@@ -155,9 +160,17 @@ function init() {
     }).toDestination();
     doc.synth[2] = new Tone.PluckSynth().toDestination();
     doc.synth[3] = new Tone.FMSynth().toDestination();
+    doc.synth[4] = new Tone.Synth().toDestination();
+    doc.synth[5] = new Tone.MembraneSynth().toDestination();
+    doc.synth[6] = new Tone.MetalSynth().toDestination();
+
+    settings.instrumentList = ["piano", "casio", "plucky", "fmsynth", "synth", "membrane", "metal"];
+    settings.instrumentList.forEach(addInstrumentOption);
 
     startFrames();
 };
+
+
 // Event Handlers
 function handleClick(e) {
     let clickP = {x: e.offsetX, y: e.offsetY,};
