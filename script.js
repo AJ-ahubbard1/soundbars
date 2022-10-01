@@ -4,22 +4,24 @@
 const settings = {
     width: 1200,
     height: 600,
-    frameRate: 120,
+    framerate: 120,
     gravity: 0.02,
-    collisionThreshold: 0.1,
+    collision: 0.1,
     clickThreshold: 8,
     backgroundColor: '#EEE',
-    numNotes: 36,
+    numNotes: 60,
     menuHeight: 50,
-    ballRadius: 4,
-    pitchMethod: "cosine",
+    ballradius: 4,
+    pitch: "cosine",
+    instrument: 0
 }
 
 const NOTES = [
- //   "C2", "C#2", "D2", "D#2", "E2", "F2", "F#2", "G2", "G#2", "A2", "A#2", "B2",
+    "C2", "C#2", "D2", "D#2", "E2", "F2", "F#2", "G2", "G#2", "A2", "A#2", "B2",
     "C3", "C#3", "D3", "D#3", "E3", "F3", "F#3", "G3", "G#3", "A3", "A#3", "B3",
     "C4", "C#4", "D4", "D#4", "E4", "F4", "F#4", "G4", "G#4", "A4", "A#4", "B4",
     "C5", "C#5", "D5", "D#5", "E5", "F5", "F#5", "G5", "G#5", "A5", "A#5", "B5",
+    "C6", "C#6", "D6", "D#6", "E6", "F6", "F#6", "G6", "G#6", "A6", "A#6", "B6",
 ];
 
 const COLORS = {
@@ -56,19 +58,29 @@ const state = {
 const doc = {
     canvas: null,
     ctx: null,
-    synth: null,
-    frameRateSlider: null,
-    frameRateLabel: null,
-    gravitySlider: null,
-    gravityLabel: null,
-    collisionSlider: null,
-    collisionLabel: null,
-    ballRadiusSlider: null,
-    ballRadiusLabel: null,
-    pitchLabel: null,
-    pitchSelect: null,
+    synth: [],
+    menu: [
+        {id: "framerate", input: null, label: null},
+        {id: "gravity", input: null, label: null},
+        {id: "collision", input: null, label: null},
+        {id: "ballradius", input: null, label: null},
+        {id: "pitch", input: null, label: null},
+        {id: "instrument", input: null, label: null},
+
+    ],
 }
-//TODO! Its probably best to move some of these calls to the html page
+
+const updateMenu = (menu) => {
+    menu.input = document.getElementById(menu.id);
+    menu.label = document.getElementById(`${menu.id}-label`);
+    menu.input.value = settings[menu.id];
+    if(menu.id !== "pitch" && menu.id !== "instrument") {
+        menu.input.addEventListener("input", handleSlider);
+        menu.label.innerHTML = `${menu.id}: ${settings[menu.id]}`;
+    }
+    return menu;
+}
+
 function init() {
     doc.canvas = document.getElementById("sbCanvas");
     doc.ctx = doc.canvas.getContext('2d');
@@ -77,94 +89,74 @@ function init() {
     state.droppers.push({x: 40, y: 10, framesPerDrop: 500});
     
     // Update Menu
-    doc.frameRateSlider = document.getElementById("framerate");
-    doc.frameRateLabel = document.getElementById("framerate-label");
-    doc.frameRateLabel.innerHTML = `FrameRate: ${settings.frameRate}`;
-    doc.frameRateSlider.value = settings.frameRate;
-
-    doc.gravitySlider = document.getElementById("gravity");
-    doc.gravityLabel = document.getElementById("gravity-label");
-    doc.gravityLabel.innerHTML = `Gravity: ${settings.gravity}`;
-    doc.gravitySlider.value = settings.gravity;
-
-    doc.collisionSlider = document.getElementById("collision");
-    doc.collisionLabel = document.getElementById("collision-label");
-    doc.collisionLabel.innerHTML = `Collision Threshold: ${settings.collisionThreshold}`;
-    doc.collisionSlider.value = settings.collisionThreshold;
-
-    doc.ballRadiusSlider = document.getElementById("ballradius");
-    doc.ballRadiusLabel = document.getElementById("ballradius-label");
-    doc.ballRadiusLabel.innerHTML = `Ball Radius: ${settings.ballRadius}`;
-    doc.ballRadiusSlider.value = settings.ballRadius;
-    
-    doc.pitchLabel = document.getElementById("pitch-label");
-    doc.pitchSelect = document.getElementById("pitch");
+    doc.menu.map((m) => updateMenu(m));
 
     clearCanvas();
+   
     // ADDING EVENT LISTENERS
     doc.canvas.addEventListener('click', handleClick);
     doc.canvas.addEventListener('mousemove', mouseMove);
-    doc.frameRateSlider.addEventListener('change', handleSlider);
-    doc.gravitySlider.addEventListener('change', handleSlider);
-    doc.collisionSlider.addEventListener('change', handleSlider);
-    doc.ballRadiusSlider.addEventListener('change', handleSlider);
-
-
     window.addEventListener('keydown', function (e) {
         e.preventDefault();
-        console.log(e.key);
         state.keyPresses[e.key] = true;
     })
-
     window.addEventListener('keyup', function (e) {
         state.keyPresses[e.key] = false;
     })
 
-    doc.synth = new Tone.Synth().toDestination();
+    //doc.synth = new Tone.Synth().toDestination();
     //doc.synth = new Tone.MembraneSynth().toDestination();
     //doc.synth = new Tone.PluckSynth().toDestination();
     //doc.synth = new Tone.MetalSynth().toDestination();
-
+    doc.synth[0] = new Tone.Sampler({
+        urls: {
+            /* note map for salamander piano */
+            A0: "A0.mp3",
+            C1: "C1.mp3",
+            "D#1": "Ds1.mp3",
+            "F#1": "Fs1.mp3",
+            A1: "A1.mp3",
+            C2: "C2.mp3",
+            "D#2": "Ds2.mp3",
+            "F#2": "Fs2.mp3",
+            A2: "A2.mp3",
+            C3: "C3.mp3",
+            "D#3": "Ds3.mp3",
+            "F#3": "Fs3.mp3",
+            A3: "A3.mp3",
+            C4: "C4.mp3",
+            "D#4": "Ds4.mp3",
+            "F#4": "Fs4.mp3",
+            A4: "A4.mp3",
+            C5: "C5.mp3",
+            "D#5": "Ds5.mp3",
+            "F#5": "Fs5.mp3",
+            A5: "A5.mp3",
+            C6: "C6.mp3",
+            "D#6": "Ds6.mp3",
+            "F#6": "Fs6.mp3",
+            A6: "A6.mp3",
+            C7: "C7.mp3",
+            "D#7": "Ds7.mp3",
+            "F#7": "Fs7.mp3",
+            A7: "A7.mp3",
+            C8: "C8.mp3"
+        },
+        release: 1,
+        baseUrl: "https://tonejs.github.io/audio/salamander/"    
+    }).toDestination();
+    
+    doc.synth[1] = new Tone.Sampler({
+        urls: {
+            "A1": "A1.mp3",
+            "A2": "A2.mp3",
+        },
+        baseUrl: "https://tonejs.github.io/audio/casio/",
+    }).toDestination();
+    doc.synth[2] = new Tone.PluckSynth().toDestination();
     startFrames();
 };
-
-function handleSlider(e) {
-    console.log(e.currentTarget.id);
-    switch(e.currentTarget.id) {
-        case "framerate":
-            settings.frameRate = Number(doc.frameRateSlider.value);
-            doc.frameRateLabel.innerHTML = `FrameRate: ${settings.frameRate}`;
-            clearInterval(state.timerId);
-            startFrames();
-            break;
-        case "gravity":
-            settings.gravity = Number(doc.gravitySlider.value);
-            doc.gravityLabel.innerHTML = `Gravity: ${settings.gravity}`;
-            break;
-        case "collision":
-            settings.collisionThreshold = Number(doc.collisionSlider.value);
-            doc.collisionLabel.innerHTML = `Collision Threshold: ${settings.collisionThreshold}`;
-            break;
-        case "ballradius":
-            settings.ballRadius = Number(doc.ballRadiusSlider.value);
-            doc.ballRadiusLabel.innerHTML = `Ball Radius: ${settings.ballRadius}`;
-    }
-}
-function clearBalls() {
-    state.balls = [];
-}
-
-function pauseFrames() {
-    state.isPaused = true;
-}
-function resumeFrames() {
-    state.isPaused = false;
-}
-
-function pitchMethod() {
-    settings.pitchMethod = doc.pitchSelect.value;
-}
-
+// Event Handlers
 function handleClick(e) {
     let clickP = {x: e.offsetX, y: e.offsetY,};
     // If on first click, save point
@@ -227,16 +219,27 @@ function handleClick(e) {
     }
 }
 
-function mouseMove(e) {
-    state.mousePos.x = e.offsetX;
-    state.mousePos.y = e.offsetY;
-}
+const mouseMove = (e) => state.mousePos = {x: e.offsetX, y: e.offsetY}
 
-function startFrames() {
-    state.timerId = setInterval(() => {
-        update();
-    }, 1000/ settings.frameRate);
+function handleSlider(e) {
+    let {id} = e.currentTarget;
+    let menu = doc.menu.find((m) => {return m.id === id});
+    settings[id] = menu.input.valueAsNumber;
+    menu.label.innerHTML = `${menu.id}: ${settings[id]}`;
+    if (id === "framerate") {
+        clearInterval(state.timerId);
+        startFrames();
+    }
 }
+const clearBalls = () => {state.balls = []}
+const pauseFrames = () => {state.isPaused = true}
+const resumeFrames = () => {state.isPaused = false}
+const pitchMethod = () => {settings.pitch = doc.menu[4].input.value}
+const selectInstrument = () => {
+    console.log("selected Instrument")
+    settings.instrument = doc.menu[5].input.value
+}
+const startFrames = () => {state.timerId = setInterval(() => update(), 1000/settings.framerate)}
 
 function setCanvasResolution() {
     settings.width = window.innerWidth;
@@ -300,7 +303,7 @@ function update() {
             let distance1 = getDistance(ballPos, line.p1);
             let distance2 = getDistance(ballPos, line.p2);
             // Collision Detected
-            if (distance1 + distance2 - lineDistance <= settings.collisionThreshold) {
+            if (distance1 + distance2 - lineDistance <= settings.collision) {
                 state.balls[b] = handleBounce(state.balls[b], line, lineDistance);
             }
         }
@@ -333,8 +336,13 @@ function handleBounce(ball, line, lineLength) {
     ball.velX = Math.cos(reflectionAngle) * velocityVector;
     ball.velY = Math.sin(reflectionAngle) * velocityVector;
 
+    playNotes(velocityVector, lineLength);
+    return ball;
+}
+
+function playNotes(velocityVector, lineLength) {
     let note = null;
-    switch(settings.pitchMethod) {
+    switch(settings.pitch) {
         case "random":
             note = Math.floor(Math.random() * settings.numNotes);
             break;
@@ -344,7 +352,6 @@ function handleBounce(ball, line, lineLength) {
         case "line-length":
             note = Math.floor(lineLength/8);
             if(note > settings.numNotes - 1) {
-                console.log("OOB!", note);
                 note = settings.numNotes - 1;
             }
             note = settings.numNotes - 1 - note;
@@ -352,13 +359,14 @@ function handleBounce(ball, line, lineLength) {
         default:
             note = Math.floor(velocityVector*velocityVector);
     }
-    console.log(settings.pitchMethod, note);
     // Add Instrument choices
+    doc.menu[4].label.innerHTML = NOTES[note];
 
-    doc.pitchLabel.innerHTML = NOTES[note];
-    doc.synth.triggerAttackRelease(NOTES[note], "2n");
-    return ball;
+    doc.synth[settings.instrument].triggerAttackRelease(NOTES[note], 2);
+    //doc.synth.triggerAttack(NOTES[note], 1);
 }
+
+
 
 function paintCanvas() {
     clearCanvas();  
@@ -389,9 +397,7 @@ function paintCanvas() {
     state.balls.forEach(ball => drawBall(ball));
 }
 
-function addBall(dropper) {
-    state.balls.push({x: dropper.x, y: dropper.y, velX: 0, velY: settings.gravity})
-}
+const addBall = dropper => {state.balls.push({x: dropper.x, y: dropper.y, velX: 0, velY: settings.gravity})}
 
 function clearCanvas() {
     doc.ctx.fillStyle = settings.backgroundColor;
@@ -407,7 +413,7 @@ function drawLine(line) {
 }
 
 function drawBall(ball, color='#333') {
-    let r = settings.ballRadius;
+    let r = settings.ballradius;
     doc.ctx.fillStyle = color;
     doc.ctx.fillRect(ball.x - r, ball.y - r, r*2, r*2);
 }

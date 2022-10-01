@@ -1,0 +1,27 @@
+Features List
+
+-> Menu Bar
+1. File
+    New File, 
+    Save state into a file
+    Open/Load state into a file
+
+2. Settings
+    Note pool= starting pitch, number of notes
+    selection= (linear, logarithmic)
+
+3. ui
+    modify lines (color)
+    change ball speed
+    add droppers
+
+4. channels
+    1 = red  (dropdown to select color) [x] (channel 1 selected for new lines)
+    2 = green
+    [+ add channel]
+
+5. playback
+    add more instruments
+    Load your own samples in sampler, or pass in URL of audio src 
+    
+6. record midi

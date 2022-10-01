@@ -6,16 +6,6 @@
 </head>
 <body onload="init()">
     <div class="container">
-        <!--
-            <span class="dropdown">
-                <button class="dropdown-btn">Pitches</button>
-                <div class="dropdown-menu">
-                    <button class="menu-btn">Link 1</button>
-                    <button class="menu-btn">Link 2</button>
-                    <button class="menu-btn">Link 3</button>
-                </div>
-            </span>
-        -->
         <div class="menu">
             <span class="sliders">
                 <label id="framerate-label" for="framerate">FrameRate: </label><br>
@@ -47,6 +37,14 @@
                 <button id="clear-balls" onclick="clearBalls()">clear balls</button>
                 <button id="pause" onclick="pauseFrames()">||</button>
                 <button id="play" onclick="resumeFrames()">></button>
+            </span>
+            <span class="sliders">
+                <label id="instrument-label" for="instrument">Instrument:</label><br>
+                <select id="instrument" name="instrument" onchange="selectInstrument()">
+                    <option value="0">piano</option>
+                    <option value="1">synth</option>
+                    <option value="2">plucky</option>
+                </select>
             </span>
         </div>
         <canvas id="sbCanvas">
