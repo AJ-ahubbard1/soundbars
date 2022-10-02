@@ -5,6 +5,7 @@ const settings = {
     width: 1200,
     height: 600,
     framerate: 120,
+    droprate: 500,
     gravity: 0.02,
     collision: 0.1,
     clickThreshold: 8,
@@ -70,87 +71,25 @@ const doc = {
         {id: 'pitch', input: null, label: null},
     ],
 }
-const getMenu = (id) => {return doc.menu.find((m) => {return m.id === id})}
 
-const updateMenu = (menu) => {
-    menu.input = document.getElementById(menu.id)
-    menu.label = document.getElementById(`${menu.id}-label`)
-    menu.input.value = settings[menu.id]
-    if(menu.id !== 'pitch') {
-        menu.input.addEventListener('input', handleSlider)
-        menu.label.innerHTML = `${menu.id}: ${settings[menu.id]}`
-    }
-    return menu
-}
-
-function addChannel() {
-    let num = state.numChannels++
-    
-    let channelList = document.getElementById('channel-list')
-    let addBtn = document.getElementById('add-channel')
-    let div = document.createElement('div')
-    let radio = document.createElement('input')
-    let label = document.createElement('label')
-    let selInst = document.createElement('select')
-    let selCol = document.createElement('select')
-    div.className = 'channel'
-    radio.type = 'radio'
-    radio.id = `ch-${num}`
-    radio.name = 'channels'
-    radio.value = num
-    radio.addEventListener('change', selectChannel)
-    div.appendChild(radio)
-    label.htmlFor = `ch-${num}`
-    label.innerHTML = `${num+1}:`
-    div.appendChild(label)
-    selInst.className = 'instrument'
-    selInst.name = 'instrument'
-    selInst.id = `instrument-list-${num}`
-    selInst.addEventListener('change', selectInstrument)
-    for(let i = 0; i < settings.instrumentList.length; i++) {
-        let option = document.createElement('option') 
-        option.innerHTML = settings.instrumentList[i]
-        option.value = i
-        selInst.appendChild(option)
-    }
-    div.appendChild(selInst)
-    selCol.className = 'color'
-    selCol.name = 'color'
-    selCol.id = `color-list-${num}`
-    selCol.addEventListener('change', selectColor)
-    for(let i = 0; i < COLORS.length; i++) {
-        let option = document.createElement('option') 
-        option.value = COLORS[i].rgb
-        option.innerHTML = COLORS[i].name
-        selCol.appendChild(option)
-    }
-    div.appendChild(selCol)
-    channelList.insertBefore(div, addBtn)
-}
 
 function init() {
     doc.canvas = document.getElementById('sbCanvas')
     doc.ctx = doc.canvas.getContext('2d')
     setCanvasResolution()
     
-    state.droppers.push({x: 40, y: 10, framesPerDrop: 500})
+    state.droppers.push({x: 40, y: 10})
     
-    // Update Menu
+    // Grab menu DOM elements and add event listeners to sliders
     doc.menu.map((m) => updateMenu(m))
-
-    clearCanvas()
    
-    // ADDING EVENT LISTENERS
+    // Adding mouse and keyboard event listeners
     doc.canvas.addEventListener('click', handleClick)
     doc.canvas.addEventListener('mousemove', mouseMove)
-    window.addEventListener('keydown', function (e) {
-        e.preventDefault()
-        state.keyPresses[e.key] = true
-    })
-    window.addEventListener('keyup', function (e) {
-        state.keyPresses[e.key] = false
-    })
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
 
+    // Load instruments
     doc.synth[0] = new Tone.Sampler({
         urls: {
             /* note map for salamander piano */
@@ -221,22 +160,47 @@ function init() {
             octaves: 4
         }
     }).toDestination()
-
+    // currently need to manually add instrument names here, in the same order as the doc.synth array above
     settings.instrumentList = ['piano', 'casio', 'synth', 'amsynth', 'fmsynth', 'plucky', 'membrane', 'metal', 'poly']
+    
     addChannel()
-    getChannel(0)
+    
     document.getElementById('ch-0').checked = true
     startFrames()
 }
 
+/** Grab DOM elements for each menu element, and their labels, and adds the event listeners */
+const updateMenu = (menu) => {
+    menu.input = document.getElementById(menu.id)
+    menu.label = document.getElementById(`${menu.id}-label`)
+    menu.input.value = settings[menu.id]
+    if(menu.id !== 'pitch') {
+        menu.input.addEventListener('input', handleSlider)
+        menu.label.innerHTML = `${menu.id}: ${settings[menu.id]}`
+    }
+    return menu
+}
+
+const getMenu = (id) => {return doc.menu.find((m) => {return m.id === id})}
+
 // Event Handlers
+function handleSlider(e) {
+    let {id} = e.currentTarget
+    let menu = doc.menu.find((m) => {return m.id === id})
+    settings[id] = menu.input.valueAsNumber
+    menu.label.innerHTML = `${menu.id}: ${settings[id]}`
+    if (id === 'framerate') {
+        clearInterval(state.timerId)
+        startFrames()
+    }
+}
+
 function handleClick(e) {
-    let clickP = {x: e.offsetX, y: e.offsetY,}
+    let clickP = {x: e.offsetX, y: e.offsetY}
     // If on first click, save point
     // Else get second point, and create a line, reset state.point to -1
     if(state.settingDropper) {
-        state.settingDropper.x = clickP.x
-        state.settingDropper.y = clickP.y
+        state.settingDropper = clickP
         state.droppers.push(state.settingDropper)
         state.settingDropper = null
     }
@@ -277,7 +241,7 @@ function handleClick(e) {
             return
         }
         let p1 = state.point
-        let p2 = {x: e.offsetX, y: e.offsetY}
+        let p2 = clickP
         // always have p1 be left point
         if(p1.x > p2.x) {
             p1 = p2
@@ -294,22 +258,67 @@ function handleClick(e) {
 
 const mouseMove = (e) => state.mousePos = {x: e.offsetX, y: e.offsetY}
 
-function handleSlider(e) {
-    let {id} = e.currentTarget
-    let menu = doc.menu.find((m) => {return m.id === id})
-    settings[id] = menu.input.valueAsNumber
-    menu.label.innerHTML = `${menu.id}: ${settings[id]}`
-    if (id === 'framerate') {
-        clearInterval(state.timerId)
-        startFrames()
-    }
+const handleKeyDown = (e) => {
+    e.preventDefault()
+    state.keyPresses[e.key] = true
 }
+const handleKeyUp = (e) => {state.keyPresses[e.key] = false}
+const pitchMethod = () => {settings.pitch = doc.menu[4].input.value}
 const clearBalls = () => {state.balls = []}
 const pauseFrames = () => {state.isPaused = true}
 const resumeFrames = () => {state.isPaused = false}
-const pitchMethod = () => {settings.pitch = doc.menu[4].input.value}
 const selectChannel = (e) => {state.currentChannel = Number(e.currentTarget.value)}
 
+function addChannel() {
+    let num = state.numChannels++
+    
+    let channelList = document.getElementById('channel-list')
+    let addBtn = document.getElementById('add-channel')
+    let div = document.createElement('div')
+    let radio = document.createElement('input')
+    let label = document.createElement('label')
+    let selInst = document.createElement('select')
+    let selCol = document.createElement('select')
+    div.className = 'channel'
+    radio.type = 'radio'
+    radio.id = `ch-${num}`
+    radio.name = 'channels'
+    radio.value = num
+    radio.addEventListener('change', selectChannel)
+    div.appendChild(radio)
+    label.htmlFor = `ch-${num}`
+    label.innerHTML = `${num+1}:`
+    div.appendChild(label)
+    selInst.className = 'instrument'
+    selInst.name = 'instrument'
+    selInst.id = `instrument-list-${num}`
+    selInst.addEventListener('change', selectInstrument)
+    for(let i = 0; i < settings.instrumentList.length; i++) {
+        let option = document.createElement('option') 
+        option.innerHTML = settings.instrumentList[i]
+        option.value = i
+        selInst.appendChild(option)
+    }
+    div.appendChild(selInst)
+    selCol.className = 'color'
+    selCol.name = 'color'
+    selCol.id = `color-list-${num}`
+    selCol.addEventListener('change', selectColor)
+    for(let i = 0; i < COLORS.length; i++) {
+        let option = document.createElement('option') 
+        option.value = COLORS[i].rgb
+        option.innerHTML = COLORS[i].name
+        selCol.appendChild(option)
+    }
+    div.appendChild(selCol)
+    channelList.insertBefore(div, addBtn)
+    getChannel(num)
+}
+function getChannel(num) {
+    let c = document.getElementById(`color-list-${num}`).value
+    let i = document.getElementById(`instrument-list-${num}`).value
+    state.channels[num] = {color: c, instrument: i}
+}
 const selectInstrument = (e) => {
     let list = e.currentTarget.id
     let num = Number(list.substring(16))
@@ -322,20 +331,6 @@ const selectColor = (e) => {
 }
 
 const startFrames = () => {state.timerId = setInterval(() => update(), 1000/settings.framerate)}
-
-function getChannel(num) {
-    let c = document.getElementById(`color-list-${num}`).value
-    let i = document.getElementById(`instrument-list-${num}`).value
-    state.channels[num] = {color: c, instrument: i}
-    console.log(state.channels[num])
-}
-
-function setCanvasResolution() {
-    settings.width = window.innerWidth
-    settings.height = window.innerHeight - settings.menuHeight
-    doc.canvas.width = settings.width
-    doc.canvas.height = settings.height
-}
 
 function keyboardInputs() {
     if(state.keyPresses['Backspace'] && state.lines.length > 0) {
@@ -369,11 +364,9 @@ function update() {
         setCanvasResolution()
     }
     // check each dropper's ball drop timer
-    state.droppers.forEach((dropper) => {
-        if(state.frameCounter % dropper.framesPerDrop === 0) {
-            addBall(dropper)
-        }
-    })
+    if(state.frameCounter % settings.droprate === 0) {
+        state.droppers.forEach(dropper => addBall(dropper))    
+    }
     // filter out balls that fall off the screen
     state.balls = state.balls.filter((ball) => {
         if(ball.y > settings.height || ball.x < 0 || ball.x > settings.width) {
@@ -399,6 +392,8 @@ function update() {
     }
     paintCanvas()
 }
+
+const addBall = dropper => {state.balls.push({x: dropper.x, y: dropper.y, velX: 0, velY: settings.gravity})}
 
 function getDistance(p1, p2) {
     let x = p2.x - p1.x
@@ -486,7 +481,12 @@ function paintCanvas() {
     state.balls.forEach(ball => drawBall(ball))
 }
 
-const addBall = dropper => {state.balls.push({x: dropper.x, y: dropper.y, velX: 0, velY: settings.gravity})}
+function setCanvasResolution() {
+    settings.width = window.innerWidth
+    settings.height = window.innerHeight - settings.menuHeight
+    doc.canvas.width = settings.width
+    doc.canvas.height = settings.height
+}
 
 function clearCanvas() {
     doc.ctx.fillStyle = settings.backgroundColor
