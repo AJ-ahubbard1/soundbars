@@ -38,10 +38,10 @@
                 <button id="pause" onclick="pauseFrames()">||</button>
                 <button id="play" onclick="resumeFrames()">></button>
             </span>
-            <span class="sliders">
-                <label id="instrument-label" for="instrument">Instrument:</label><br>
-                <select id="instrument" name="instrument" onchange="selectInstrument()"></select>
-            </span>
+        </div>
+        <div id="channel-list">
+            <p>Channel List</p>
+            <button id="add-channel" onclick="addChannel()">+</button>
         </div>
         <canvas id="sbCanvas">
         </canvas>

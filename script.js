@@ -26,22 +26,22 @@ const NOTES = [
     "C6", "C#6", "D6", "D#6", "E6", "F6", "F#6", "G6", "G#6", "A6", "A#6", "B6",
 ];
 
-const COLORS = {
-    black: '#000000',
-    red: '#FF0000',
-    lime: '#00FF00',
-    blue: '#0000FF',
-    yellow: '#FFFF00',
-    cyan: '#00FFFF',
-    magenta: '#FF00FF',
-    maroon: '#800000',
-    green: '#008000',
-    gold: '#FFD700',
-    silver: '#C0C0C0',
-    purple: '#800080',
-    teal: '#008080',
-    navy: '#000080',
-}
+const COLORS = [
+    {name: 'black', rgb: '#000000'},
+    {name: 'red', rgb: '#FF0000'},
+    {name: 'lime', rgb: '#00FF00'},
+    {name: 'blue', rgb: '#0000FF'},
+    {name: 'yellow', rgb: '#FFFF00'},
+    {name: 'cyan', rgb: '#00FFFF'},
+    {name: 'magenta', rgb: '#FF00FF'},
+    {name: 'maroon', rgb: '#800000'},
+    {name: 'green', rgb: '#008000'},
+    {name: 'gold', rgb: '#FFD700'},
+    {name: 'silver', rgb: '#C0C0C0'},
+    {name: 'purple', rgb: '#800080'},
+    {name: 'teal', rgb: '#008080'},
+    {name: 'navy', rgb: '#000080'},
+]
 
 const state = {
     timerId: null,
@@ -54,7 +54,10 @@ const state = {
     currentColor: '#0033FF',
     keyPresses: [],
     isPaused: false,
-    settingDropper: null
+    settingDropper: null,
+    numChannels: 0,
+    currentChannel: 0,
+    channels: []
 }
 
 const doc = {
@@ -67,28 +70,64 @@ const doc = {
         {id: "collision", input: null, label: null},
         {id: "ballradius", input: null, label: null},
         {id: "pitch", input: null, label: null},
-        {id: "instrument", input: null, label: null},
     ],
 }
 const getMenu = (id) => {return doc.menu.find((m) => {return m.id === id})}
-
-const addInstrumentOption = (instrument) => {
-    let option = document.createElement('option'); 
-    option.textContent = instrument;
-    option.value = settings.numInstruments++;
-    let m = getMenu("instrument").input.appendChild(option);
-}
-
 
 const updateMenu = (menu) => {
     menu.input = document.getElementById(menu.id);
     menu.label = document.getElementById(`${menu.id}-label`);
     menu.input.value = settings[menu.id];
-    if(menu.id !== "pitch" && menu.id !== "instrument") {
+    if(menu.id !== "pitch") {
         menu.input.addEventListener("input", handleSlider);
         menu.label.innerHTML = `${menu.id}: ${settings[menu.id]}`;
     }
     return menu;
+}
+
+function addChannel() {
+    let num = state.numChannels++;
+    
+    let channelList = document.getElementById('channel-list');
+    let addBtn = document.getElementById('add-channel');
+    let div = document.createElement('div');
+    let radio = document.createElement('input');
+    let label = document.createElement('label');
+    let selInst = document.createElement('select');
+    let selCol = document.createElement('select');
+    div.className = "channel";
+    radio.type = 'radio';
+    radio.id = `ch-${num}`;
+    radio.name = "channels";
+    radio.value = num;
+    radio.addEventListener('change', selectChannel);
+    div.appendChild(radio);
+    label.htmlFor = `ch-${num}`;
+    label.innerHTML = `${num+1}:`;
+    div.appendChild(label);
+    selInst.className = "instrument";
+    selInst.name = "instrument";
+    selInst.id = `instrument-list-${num}`;
+    selInst.addEventListener('change', selectInstrument);
+    for(let i = 0; i < settings.instrumentList.length; i++) {
+        let option = document.createElement('option'); 
+        option.innerHTML = settings.instrumentList[i];
+        option.value = i;
+        selInst.appendChild(option);
+    }
+    div.appendChild(selInst);
+    selCol.className = "color";
+    selCol.name = "color";
+    selCol.id = `color-list-${num}`;
+    selCol.addEventListener('change', selectColor)
+    for(let i = 0; i < COLORS.length; i++) {
+        let option = document.createElement('option'); 
+        option.value = COLORS[i].rgb;
+        option.innerHTML = COLORS[i].name;
+        selCol.appendChild(option);
+    }
+    div.appendChild(selCol);
+    channelList.insertBefore(div, addBtn);
 }
 
 function init() {
@@ -165,8 +204,9 @@ function init() {
     doc.synth[6] = new Tone.MetalSynth().toDestination();
 
     settings.instrumentList = ["piano", "casio", "plucky", "fmsynth", "synth", "membrane", "metal"];
-    settings.instrumentList.forEach(addInstrumentOption);
-
+    addChannel();
+    getChannel(0);
+    document.getElementById('ch-0').checked = true;
     startFrames();
 };
 
@@ -228,7 +268,7 @@ function handleClick(e) {
         state.lines.push({
             p1:p1,
             p2:p2,
-            color: state.currentColor
+            channel: state.currentChannel
         });
         state.point = {x:-1, y:-1};
     }
@@ -250,11 +290,29 @@ const clearBalls = () => {state.balls = []}
 const pauseFrames = () => {state.isPaused = true}
 const resumeFrames = () => {state.isPaused = false}
 const pitchMethod = () => {settings.pitch = doc.menu[4].input.value}
-const selectInstrument = () => {
-    console.log("selected Instrument")
-    settings.instrument = doc.menu[5].input.value
+const selectChannel = (e) => {
+    state.currentChannel = Number(e.currentTarget.value);
 }
+
+const selectInstrument = (e) => {
+    let list = e.currentTarget.id;
+    let num = Number(list.substring(16));
+    getChannel(num);
+}
+const selectColor = (e) => {
+    let list = e.currentTarget.id;
+    let num = Number(list.substring(11));
+    getChannel(num);
+}
+
 const startFrames = () => {state.timerId = setInterval(() => update(), 1000/settings.framerate)}
+
+function getChannel(num) {
+    let c = document.getElementById(`color-list-${num}`).value;
+    let i = document.getElementById(`instrument-list-${num}`).value;
+    state.channels[num] = {color: c, instrument: i};
+    console.log(state.channels[num]);
+}
 
 function setCanvasResolution() {
     settings.width = window.innerWidth;
@@ -351,11 +409,11 @@ function handleBounce(ball, line, lineLength) {
     ball.velX = Math.cos(reflectionAngle) * velocityVector;
     ball.velY = Math.sin(reflectionAngle) * velocityVector;
 
-    playNotes(velocityVector, lineLength);
+    playNotes(line.channel, velocityVector, lineLength);
     return ball;
 }
 
-function playNotes(velocityVector, lineLength) {
+function playNotes(channel, velocityVector, lineLength) {
     let note = null;
     switch(settings.pitch) {
         case "random":
@@ -376,12 +434,14 @@ function playNotes(velocityVector, lineLength) {
     }
     // Add Instrument choices
     doc.menu[4].label.innerHTML = NOTES[note];
-
-    doc.synth[settings.instrument].triggerAttackRelease(NOTES[note], 2);
+    let instrument = state.channels[channel].instrument;
+    doc.synth[instrument].triggerAttackRelease(NOTES[note], "4n");
     //doc.synth.triggerAttack(NOTES[note], 1);
 }
 
-
+const getColorByChannel = (num) => {
+    return state.channels[num].color;
+}
 
 function paintCanvas() {
     clearCanvas();  
@@ -395,13 +455,13 @@ function paintCanvas() {
     
     // draw line after point is placed
     if(state.point.x !== -1) {
-        doc.ctx.fillStyle = state.currentColor;
+        doc.ctx.fillStyle = getColorByChannel(state.currentChannel);
         doc.ctx.fillRect(state.point.x-1, state.point.y-1, 3, 3);
         doc.ctx.fillRect(state.mousePos.x-1, state.mousePos.y-1, 3, 3);
         let line = {
             p1: state.point,
             p2: state.mousePos,
-            color:state.currentColor
+            channel:state.currentChannel
         };
         drawLine(line);
     }
@@ -421,7 +481,7 @@ function clearCanvas() {
 
 function drawLine(line) {
     doc.ctx.beginPath();
-    doc.ctx.strokeStyle = line.color;
+    doc.ctx.strokeStyle = getColorByChannel(line.channel);
     doc.ctx.moveTo(line.p1.x, line.p1.y);
     doc.ctx.lineTo(line.p2.x, line.p2.y);
     doc.ctx.stroke();

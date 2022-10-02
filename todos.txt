@@ -11,17 +11,16 @@ Features List
     selection= (linear, logarithmic)
 
 3. ui
-    modify lines (color)
     change ball speed
     add droppers
 
-4. channels
-    1 = red  (dropdown to select color) [x] (channel 1 selected for new lines)
-    2 = green
-    [+ add channel]
 
 5. playback
+    Only load instruments into synth once they are selected, hopefully to optimize 
     add more instruments
-    Load your own samples in sampler, or pass in URL of audio src 
+    %Load your own samples in sampler, or pass in URL of audio src%
     
 6. record midi
+
+
+% Probably not going to happen

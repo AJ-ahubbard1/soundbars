@@ -130,3 +130,33 @@ select {
   text-decoration: none;
   z-index: 2;
 }
+
+#channel-list {
+  display: flex-column;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 3;
+  width: 200px;
+  background-color: #91d2ee;
+  text-align: center;
+  border: 2px solid #333;
+  
+}
+
+.channel {
+  display: inline-flex;
+  align-items: center;
+}
+
+.channel select {
+  background-color: #fff;
+  min-width: 60px;
+}
+
+#add-channel {
+  width: 50%;
+  margin: 4px 25%;  
+  padding: 1px 2px;
+}
+
