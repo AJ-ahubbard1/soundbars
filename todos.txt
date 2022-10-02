@@ -19,7 +19,7 @@ Features List
     Only load instruments into synth once they are selected, hopefully to optimize 
     add more instruments
     %Load your own samples in sampler, or pass in URL of audio src%
-    
+	Ability to delete channels    
 6. record midi
 
 
