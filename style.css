@@ -77,11 +77,11 @@
   font-size: 10px;
   justify-content: center;
   min-height: 50px;
-  min-width: 160px;
+  max-width: 150px;
   text-align: center;
   background-color: #91d2ee;
   margin: 0 2px;
-  padding: 0;
+  padding: 2px;
   border-radius: 2px;
   border: 1px solid #333;
 
@@ -103,10 +103,6 @@ input[type=range] {
 select {
   height: 30px;
   width: 90%;
-}
-
-.hide {
-  visibility: hidden;
 }
 
 #ready {
@@ -138,11 +134,22 @@ select {
   right: 1px;
   top: 1px;
   z-index: 3;
-  width: 200px;
+  max-width: min-content;
   background-color: #91d2ee;
   text-align: center;
   border: 2px solid #333;
   
+}
+input[type="radio"] {
+  -ms-transform: scale(2.4); /* IE 9 */
+  -webkit-transform: scale(2.4); /* Chrome, Safari, Opera */
+  transform: scale(2.4);
+  margin: 5px;
+  padding: 8px;
+}
+#channel-list label {
+  margin: 0 5px;
+  padding: 0 6px 0 0;
 }
 
 .channel {
@@ -152,7 +159,7 @@ select {
 
 .channel select {
   background-color: #fff;
-  min-width: 60px;
+  min-width: fit-content;
 }
 
 #add-channel {
@@ -161,3 +168,37 @@ select {
   padding: 1px 2px;
 }
 
+#help {
+  position: fixed;
+  width: 50%;
+  top: 40%;
+  left: 25%;
+
+  background-color: #91d2ee;
+  border-radius: 8px;
+  border: 1px solid #333;
+  text-align: center;
+}
+
+#help button {
+  width: 80px;
+  padding: 5px;
+  margin: 5px;
+}
+#help-btn {
+  position: fixed;
+  width: 20px;
+  bottom: 1px;
+  right: 1px;
+  background-color: #91d2ee;
+  border: 1px solid #333;
+  text-align: center;
+  font-size: 16px;
+}
+#help-btn:hover {
+  cursor: pointer;
+}
+
+.hide {
+  display: none;
+}

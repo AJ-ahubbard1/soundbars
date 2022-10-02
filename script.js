@@ -279,6 +279,10 @@ function addChannel() {
     let label = document.createElement('label')
     let selInst = document.createElement('select')
     let selCol = document.createElement('select')
+    let startPitch = document.createElement('select')
+    let endPitch = document.createElement('select')
+    let br = document.createElement('br')
+    
     div.className = 'channel'
     radio.type = 'radio'
     radio.id = `ch-${num}`
@@ -311,6 +315,22 @@ function addChannel() {
         selCol.appendChild(option)
     }
     div.appendChild(selCol)
+    startPitch.id = `start-pitch-${num}`
+    endPitch.id = `end-pitch-${num}`
+    NOTES.forEach((note, i) => {
+        let start = document.createElement('option')
+        let end = document.createElement('option')
+        start.value = i
+        end.value = i
+        start.innerHTML = note
+        end.innerHTML = note
+        startPitch.appendChild(start)
+        endPitch.appendChild(end)
+    })
+    endPitch.value = NOTES.length - 1
+    div.appendChild(startPitch)
+    div.appendChild(endPitch)
+    div.appendChild(br)
     channelList.insertBefore(div, addBtn)
     getChannel(num)
 }
@@ -328,6 +348,13 @@ const selectColor = (e) => {
     let list = e.currentTarget.id
     let num = Number(list.substring(11))
     getChannel(num)
+}
+
+const toggleHelp = (e) => {
+    let help = document.getElementById('help')
+    let helpBtn = document.getElementById('help-btn')
+    help.classList.toggle('hide')
+    helpBtn.classList.toggle('hide')
 }
 
 const startFrames = () => {state.timerId = setInterval(() => update(), 1000/settings.framerate)}

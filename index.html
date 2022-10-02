@@ -43,8 +43,20 @@
             <p>Channel List</p>
             <button id="add-channel" onclick="addChannel()">+</button>
         </div>
-        <canvas id="sbCanvas">
-        </canvas>
+        <canvas id="sbCanvas"></canvas>
+        <div id="help">
+            <h1>Sound Bars</h1>
+            <p>
+                <b>click</b>: create lines<br>
+                <b>Backspace</b>: removes newest line<br>
+                <b>Spacebar</b>: pause/resume<br>
+                <b>Shift+click on a line's point</b>: allows you to move the point.
+                Pressing backspace before the point is placed will delete the line.<br>
+                <b>Shift+click on the dropper</b>: allows you to move the dropper.<br>
+            </p>
+            <button onClick="toggleHelp()">Got it!</button>
+        </div>
+        <div id="help-btn" class="hide" onClick="toggleHelp()">?</div>
     </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.43/Tone.js" integrity="sha512-n7wMz32h+9PqvKp0AJ++fkZxe9wP7XFiN2sCgM/Kp+8BgfNzMjSofcC6zSRAr4+WKPnqv1k8SjbgVW5E5K5n5w==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="script.js"></script>
