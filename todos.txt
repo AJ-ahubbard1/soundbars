@@ -5,22 +5,20 @@ Features List
     New File, 
     Save state into a file
     Open/Load state into a file
+    Save (state, settings) in browser longterm storage 
+    Click save, have multiple saves available
 
 2. Settings
-    Note pool= starting pitch, number of notes
-    selection= (linear, logarithmic)
-
-3. ui
-    change ball speed
-    add droppers
-
+    3. selection= (linear, logarithmic)
+    1. change ball speed
+    2. add droppers
 
 5. playback
-    Only load instruments into synth once they are selected, hopefully to optimize 
+    5. Only load instruments into synth once they are selected, hopefully to optimize 
     add more instruments
     %Load your own samples in sampler, or pass in URL of audio src%
-	Ability to delete channels    
+	4. Ability to delete channels    
 6. record midi
-
-
-% Probably not going to happen
+    6. Connect to Midi device, or create virtual device
+    7. switch on midi playthru, turn off tonejs sounds
+ 
