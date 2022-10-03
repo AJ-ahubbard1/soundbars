@@ -5,7 +5,7 @@ const settings = {
     width: 1200,
     height: 600,
     framerate: 120,
-    droprate: 500,
+    droprate: 120,
     gravity: 0.02,
     collision: 0.1,
     clickThreshold: 8,
@@ -137,7 +137,20 @@ function init() {
     doc.synth[2] = new Tone.Synth().toDestination()
     doc.synth[3] = new Tone.AMSynth().toDestination()
     doc.synth[4] = new Tone.FMSynth().toDestination()
-    doc.synth[5] = new Tone.PluckSynth().toDestination()
+    doc.synth[5] = new Tone.PolySynth(Tone.Synth, {
+        oscillator: {
+            type: "fatsawtooth",
+            count: 3,
+            spread: 30
+        },
+        envelope: {
+            attack: 0.01,
+            decay: 0.1,
+            sustain: 0.5,
+            release: 0.4,
+            attackCurve: "exponential"
+        },
+    }).toDestination();
     doc.synth[6] = new Tone.MembraneSynth().toDestination()
     doc.synth[7] = new Tone.MetalSynth().toDestination()
     doc.synth[8] = new Tone.PolySynth(Tone.MonoSynth, {
@@ -161,7 +174,7 @@ function init() {
         }
     }).toDestination()
     // currently need to manually add instrument names here, in the same order as the doc.synth array above
-    settings.instrumentList = ['piano', 'casio', 'synth', 'amsynth', 'fmsynth', 'plucky', 'membrane', 'metal', 'poly']
+    settings.instrumentList = ['piano', 'casio', 'synth', 'amsynth', 'fmsynth', 'fatsawtooth', 'membrane', 'metal', 'poly']
     
     addChannel()
     
@@ -317,6 +330,8 @@ function addChannel() {
     div.appendChild(selCol)
     startPitch.id = `start-pitch-${num}`
     endPitch.id = `end-pitch-${num}`
+    startPitch.addEventListener('change', selectStartPitch)
+    endPitch.addEventListener('change', selectEndPitch)
     NOTES.forEach((note, i) => {
         let start = document.createElement('option')
         let end = document.createElement('option')
@@ -336,21 +351,46 @@ function addChannel() {
 }
 function getChannel(num) {
     let c = document.getElementById(`color-list-${num}`).value
-    let i = document.getElementById(`instrument-list-${num}`).value
-    state.channels[num] = {color: c, instrument: i}
+    let i = Number(document.getElementById(`instrument-list-${num}`).value)
+    let s = Number(document.getElementById(`start-pitch-${num}`).value)
+    let e = Number(document.getElementById(`end-pitch-${num}`).value)
+    state.channels[num] = {color: c, instrument: i, startPitch: s, endPitch: e}
 }
 const selectInstrument = (e) => {
     let list = e.currentTarget.id
     let num = Number(list.substring(16))
-    getChannel(num)
+    let instrument = Number(document.getElementById(`instrument-list-${num}`).value)
+    state.channels[num].instrument = instrument
 }
 const selectColor = (e) => {
     let list = e.currentTarget.id
     let num = Number(list.substring(11))
-    getChannel(num)
+    let color = document.getElementById(`color-list-${num}`).value
+    state.channels[num].color = color
 }
-
-const toggleHelp = (e) => {
+const selectStartPitch = (e) => {
+    let list = e.currentTarget.id
+    let num = Number(list.substring(12))
+    let option = document.getElementById(`start-pitch-${num}`)
+    let startPitch = Number(option.value)
+    state.channels[num].startPitch = startPitch
+    if(startPitch > state.channels[num].endPitch) {
+        state.channels[num].startPitch = state.channels[num].endPitch
+        option.value = state.channels[num].endPitch
+    }
+}
+const selectEndPitch = (e) => {
+    let list = e.currentTarget.id
+    let num = Number(list.substring(10))
+    let option = document.getElementById(`end-pitch-${num}`)
+    let endPitch = Number(option.value)
+    state.channels[num].endPitch = endPitch
+    if(endPitch < state.channels[num].startPitch) {
+        state.channels[num].endPitch = state.channels[num].startPitch
+        option.value = state.channels[num].startPitch
+    }
+}
+const toggleHelp = () => {
     let help = document.getElementById('help')
     let helpBtn = document.getElementById('help-btn')
     help.classList.toggle('hide')
@@ -453,26 +493,27 @@ function handleBounce(ball, line, lineLength) {
 
 function playNotes(channel, velocityVector, lineLength) {
     let note = null
+    let {instrument, startPitch, endPitch} = state.channels[channel]
+    let numNotes = endPitch - startPitch + 1
     switch(settings.pitch) {
         case 'random':
-            note = Math.floor(Math.random() * settings.numNotes)
+            note = Math.floor(Math.random() * numNotes) + startPitch
             break
         case 'cosine':
-            note = Math.floor(Math.abs(Math.cos(velocityVector) * settings.numNotes))
+            note = Math.floor(Math.abs(Math.cos(velocityVector) * numNotes)) + startPitch
             break
         case 'line-length':
             note = Math.floor(lineLength/8)
-            if(note > settings.numNotes - 1) {
-                note = settings.numNotes - 1
+            if(note > startPitch + numNotes - 1) {
+                note = startPitch + numNotes - 1
             }
-            note = settings.numNotes - 1 - note
+            note = startPitch + numNotes - 1 - note
             break
         default:
-            note = Math.floor(velocityVector*velocityVector)
+            note = Math.floor(Math.abs(Math.cos(velocityVector) * numNotes)) + startPitch
     }
     // Add Instrument choices
     doc.menu[4].label.innerHTML = NOTES[note]
-    let instrument = state.channels[channel].instrument
     doc.synth[instrument].triggerAttackRelease(NOTES[note], '4n')
     //doc.synth.triggerAttack(NOTES[note], 1)
 }

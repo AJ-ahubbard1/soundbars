@@ -178,6 +178,7 @@ input[type="radio"] {
   border-radius: 8px;
   border: 1px solid #333;
   text-align: center;
+  line-height: 2.1rem;
 }
 
 #help button {
