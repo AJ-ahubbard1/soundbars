@@ -15,7 +15,6 @@ Features List
     8. Only load instruments into synth once they are selected, hopefully to optimize 
     add more instruments
     %Load your own samples in sampler, or pass in URL of audio src%
-	4. Ability to delete channels    
     9. When channel is added, use a color and instrument different than the previous channels 
     Maximum # of balls or risk crashing
 
@@ -33,5 +32,7 @@ Completed:
     1. change ball speed Oct 5, 12:49am
     2. add/remove droppers Oct 5, 1:34am
     3. selection= (exponential, logarithmic) Oct 5, 2:51
+	4. Ability to delete channels Oct 5, 3:44
+    
 
 

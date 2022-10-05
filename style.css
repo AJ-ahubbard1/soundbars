@@ -94,12 +94,24 @@ input[type="radio"] { /* IE 9 */ /* Chrome, Safari, Opera */
   align-items: center;
   border: 1px solid #333;
   min-height: 24px;
+  text-align: center;
 }
 .channel select {
   background-color: #fff;
   min-width: -webkit-fit-content;
   min-width: -moz-fit-content;
   min-width: fit-content;
+}
+
+.channel button {
+  text-align: center;
+  font-size: 10px;
+  padding-right: 9px;
+  padding-left: 4px;
+  margin: 0 1px;
+  background-color: red;
+  color: #fff;
+  font-weight: 600;
 }
 
 #add-channel {

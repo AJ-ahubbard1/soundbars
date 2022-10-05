@@ -297,11 +297,12 @@ function addChannel() {
     let selCol = document.createElement('select')
     let startPitch = document.createElement('select')
     let endPitch = document.createElement('select')
+    let deleteBtn = document.createElement('button')
     let br = document.createElement('br')
     
     div.className = 'channel'
+    div.id = `ch-${num}`
     radio.type = 'radio'
-    radio.id = `ch-${num}`
     radio.name = 'channels'
     radio.value = num
     radio.addEventListener('change', selectChannel)
@@ -348,10 +349,23 @@ function addChannel() {
     endPitch.value = NOTES.length - 1
     div.appendChild(startPitch)
     div.appendChild(endPitch)
+    deleteBtn.innerHTML = 'X'
+    deleteBtn.value = num
+    deleteBtn.addEventListener('click', deleteChannel)
+    div.appendChild(deleteBtn)
     div.appendChild(br)
     channelList.insertBefore(div, addBtn)
     getChannel(num)
 }
+const deleteChannel = (e) => {
+    if(state.numChannels === 1) {
+        return
+    }
+    let num = e.currentTarget.value
+    state.channels = state.channels.filter((channel, i) => {return num !== i})
+    document.getElementById(`ch-${num}`).remove()
+}
+
 function getChannel(num) {
     let c = document.getElementById(`color-list-${num}`).value
     let i = Number(document.getElementById(`instrument-list-${num}`).value)
