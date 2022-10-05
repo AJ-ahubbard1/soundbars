@@ -11,7 +11,7 @@ const settings = {
     clickThreshold: 8,
     backgroundColor: '#EEE',
     numNotes: 60,
-    menuHeight: 50,
+    menuHeight: 96,
     ballradius: 4,
     pitch: 'cosine',
     instrumentList: [],
@@ -69,6 +69,7 @@ const doc = {
         {id: 'collision', input: null, label: null},
         {id: 'ballradius', input: null, label: null},
         {id: 'pitch', input: null, label: null},
+        {id: 'droprate', input: null, label: null},
     ],
 }
 
@@ -189,7 +190,7 @@ const updateMenu = (menu) => {
     menu.input.value = settings[menu.id]
     if(menu.id !== 'pitch') {
         menu.input.addEventListener('input', handleSlider)
-        menu.label.innerHTML = `${menu.id}: ${settings[menu.id]}`
+        //menu.label.innerHTML = `${menu.id}: ${settings[menu.id]}`
     }
     return menu
 }
@@ -198,10 +199,11 @@ const getMenu = (id) => {return doc.menu.find((m) => {return m.id === id})}
 
 // Event Handlers
 function handleSlider(e) {
+    console.log(e.currentTarget)
     let {id} = e.currentTarget
     let menu = doc.menu.find((m) => {return m.id === id})
     settings[id] = menu.input.valueAsNumber
-    menu.label.innerHTML = `${menu.id}: ${settings[id]}`
+    //menu.label.innerHTML = `${menu.id}: ${settings[id]}`
     if (id === 'framerate') {
         clearInterval(state.timerId)
         startFrames()
@@ -272,7 +274,7 @@ function handleClick(e) {
 const mouseMove = (e) => state.mousePos = {x: e.offsetX, y: e.offsetY}
 
 const handleKeyDown = (e) => {
-    e.preventDefault()
+
     state.keyPresses[e.key] = true
 }
 const handleKeyUp = (e) => {state.keyPresses[e.key] = false}

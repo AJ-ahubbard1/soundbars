@@ -9,16 +9,28 @@ Features List
     Click save, have multiple saves available
 
 2. Settings
-    3. selection= (linear, logarithmic)
-    1. change ball speed
+    3. selection= (exponential, logarithmic)
     2. add droppers
+    5. ball color is set to the line color after collision
 
 5. playback
-    5. Only load instruments into synth once they are selected, hopefully to optimize 
+    8. Only load instruments into synth once they are selected, hopefully to optimize 
     add more instruments
     %Load your own samples in sampler, or pass in URL of audio src%
 	4. Ability to delete channels    
+    9. When channel is added, use a color and instrument different than the previous channels 
+    Maximum # of balls or risk crashing
+
 6. record midi
     6. Connect to Midi device, or create virtual device
     7. switch on midi playthru, turn off tonejs sounds
- 
+
+
+    [shift+]1234 adjusts channel settings, shift+ = up, without = down
+    scroll wheel usage 
+
+
+
+Completed:
+    1. change ball speed Oct 5, 12:49am
+    

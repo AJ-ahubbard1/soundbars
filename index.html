@@ -8,27 +8,31 @@
     <div class="container">
         <div class="menu">
             <span class="sliders">
-                <label id="framerate-label" for="framerate">FrameRate: </label><br>
-                <input type="range" id="framerate" name="framerate" step="2" min="30" max="240">
+                <label id="framerate-label" for="framerate">Frames Per Second:</label><br>
+                <input type="number" id="framerate" name="framerate" step="2" min="30" max="240">
             </span>
             <span class="sliders">
-            <label id="gravity-label" for="gravity">Gravity: </label><br>
-            <input type="range" id="gravity" name="gravity" step=".001" min=".001" max=".2">
+            <label id="gravity-label" for="gravity">Gravity:</label><br>
+            <input type="number" id="gravity" name="gravity" step=".001" min=".001" max=".2">
             </span>
             <span class="sliders">
-                <label id="collision-label" for="collision">Collision Threshold: </label><br>
-                <input type="range" id="collision" name="collision" step=".05" min=".05" max="2">
+                <label id="collision-label" for="collision">Collision Threshold:</label><br>
+                <input type="number" id="collision" name="collision" step=".05" min=".05" max="2">
             </span>
             <span class="sliders">
-                <label id="ballradius-label" for="ballradius">Ball Radius: </label><br>
-                <input type="range" id="ballradius" name="ballradius" step="1" min="2" max="20">
+                <label id="ballradius-label" for="ballradius">Ball Radius:</label><br>
+                <input type="number" id="ballradius" name="ballradius" step="1" min="2" max="20">
+            </span>
+            <span class="sliders">
+                <label id="droprate-label" for="droprate">Frames Per Drop:</label><br>
+                <input type="number" id="droprate" name="droprate" step="1" min="0" max="1200">
             </span>
             <span class="sliders">
                 <label id="pitch-label" for="pitch">00</label><br>
                 <select id="pitch" name="pitch" onchange="pitchMethod()">
-                    <option value="">--pitch mapping method--</option>
+                    <option value="">--pitch selection--</option>
                     <option value="random">random</option>
-                    <option value="cosine">cos(ball velocity)</option>
+                    <option value="cosine">cos(velocity)</option>
                     <option value="line-length">line-length</option>
                 </select>
             </span>
@@ -40,8 +44,7 @@
             </span>
         </div>
         <div id="channel-list">
-            <p>Channel List</p>
-            <button id="add-channel" onclick="addChannel()">+</button>
+            <button id="add-channel" onclick="addChannel()">Add Channel</button>
         </div>
         <canvas id="sbCanvas"></canvas>
         <div id="help">
