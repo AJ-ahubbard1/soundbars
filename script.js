@@ -49,7 +49,7 @@ const state = {
     mousePos: {x: -1, y: -1},
     lines: [],                  //p1, p2, color
     balls: [],
-    droppers: [],               //x, y, framesPerDrop
+    droppers: [],               //x, y
     currentColor: '#0033FF',
     keyPresses: [],
     isPaused: false,
@@ -283,6 +283,12 @@ const clearBalls = () => {state.balls = []}
 const pauseFrames = () => {state.isPaused = true}
 const resumeFrames = () => {state.isPaused = false}
 const selectChannel = (e) => {state.currentChannel = Number(e.currentTarget.value)}
+const addDropper = (e) => {
+    state.settingDropper = {x: 0, y: 0}
+    cursor.style.left = '50%'
+    cursor.style.right = '50%'
+    console.log("adding dropper")
+}
 
 function addChannel() {
     let num = state.numChannels++
@@ -402,12 +408,18 @@ const toggleHelp = () => {
 const startFrames = () => {state.timerId = setInterval(() => update(), 1000/settings.framerate)}
 
 function keyboardInputs() {
-    if(state.keyPresses['Backspace'] && state.lines.length > 0) {
+    
+    if(!state.keyPresses['Shift'] && state.keyPresses['Backspace'] && state.lines.length > 0) {
         if(state.point.x !== -1) {
             state.point = {x:-1, y:-1}
         } else {
             state.lines.pop()
         }
+        state.keyPresses['Backspace'] = false
+    }
+    if(state.keyPresses['Shift'] && state.keyPresses['Backspace'] && state.droppers.length > 1) {
+        state.droppers.pop()
+        state.keyPresses['Shift'] = false
         state.keyPresses['Backspace'] = false
     }
     if(state.keyPresses[' ']) {
