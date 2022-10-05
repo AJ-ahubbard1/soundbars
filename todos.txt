@@ -28,7 +28,7 @@ Features List
     scroll wheel usage 
 
 
-
+ALWAYS UPDATE VERSION NUMBER
 Completed:
     1. change ball speed Oct 5, 12:49am
     2. add/remove droppers Oct 5, 1:34am
