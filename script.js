@@ -483,7 +483,7 @@ function update() {
     paintCanvas()
 }
 
-const addBall = dropper => {state.balls.push({x: dropper.x, y: dropper.y, velX: 0, velY: settings.gravity})}
+const addBall = dropper => {state.balls.push({x: dropper.x, y: dropper.y, velX: 0, velY: settings.gravity, color: '#333'})}
 
 function getDistance(p1, p2) {
     let x = p2.x - p1.x
@@ -509,7 +509,8 @@ function handleBounce(ball, line, lineLength) {
     let velocityVector = Math.sqrt(ball.velX*ball.velX + ball.velY*ball.velY)
     ball.velX = Math.cos(reflectionAngle) * velocityVector
     ball.velY = Math.sin(reflectionAngle) * velocityVector
-
+    //set ball color to the line's color after bounce
+    ball.color = state.channels[line.channel].color
     playNotes(line.channel, velocityVector, lineLength)
     return ball
 }
@@ -576,7 +577,7 @@ function paintCanvas() {
     state.lines.forEach(drawLine)
 
     // draw balls
-    state.balls.forEach(ball => drawBall(ball))
+    state.balls.forEach(ball => drawBall(ball, ball.color))
 }
 
 function setCanvasResolution() {

@@ -9,7 +9,6 @@ Features List
     Click save, have multiple saves available
 
 2. Settings
-    5. ball color is set to the line color after collision
 
 5. playback
     8. Only load instruments into synth once they are selected, hopefully to optimize 
@@ -33,6 +32,8 @@ Completed:
     2. add/remove droppers Oct 5, 1:34am
     3. selection= (exponential, logarithmic) Oct 5, 2:51
 	4. Ability to delete channels Oct 5, 3:44
+    5. ball color is set to the line color after collision Oct 5, 4:11
     
+
 
 
