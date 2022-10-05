@@ -8,6 +8,7 @@ const settings = {
     droprate: 120,
     gravity: 0.02,
     collision: 0.1,
+    maxVelocity: 5,
     clickThreshold: 8,
     backgroundColor: '#EEE',
     numNotes: 60,
@@ -199,7 +200,6 @@ const getMenu = (id) => {return doc.menu.find((m) => {return m.id === id})}
 
 // Event Handlers
 function handleSlider(e) {
-    console.log(e.currentTarget)
     let {id} = e.currentTarget
     let menu = doc.menu.find((m) => {return m.id === id})
     settings[id] = menu.input.valueAsNumber
@@ -283,12 +283,7 @@ const clearBalls = () => {state.balls = []}
 const pauseFrames = () => {state.isPaused = true}
 const resumeFrames = () => {state.isPaused = false}
 const selectChannel = (e) => {state.currentChannel = Number(e.currentTarget.value)}
-const addDropper = (e) => {
-    state.settingDropper = {x: 0, y: 0}
-    cursor.style.left = '50%'
-    cursor.style.right = '50%'
-    console.log("adding dropper")
-}
+const addDropper = (e) => { state.settingDropper = {...settings.mousePos} }
 
 function addChannel() {
     let num = state.numChannels++
@@ -523,13 +518,20 @@ function playNotes(channel, velocityVector, lineLength) {
             }
             note = startPitch + numNotes - 1 - note
             break
-        default:
-            note = Math.floor(Math.abs(Math.cos(velocityVector) * numNotes)) + startPitch
+        case 'exponential':
+            let alpha = numNotes / Math.pow(settings.maxVelocity, 2)
+            note = Math.floor(alpha * velocityVector * velocityVector) + startPitch
+            break
+        default: // Logarithmic
+            note = Math.floor(Math.log10(velocityVector) * numNotes) + startPitch
+            break
     }
-    // Add Instrument choices
+    if (note > endPitch) {
+        note = endPitch
+    }
+    // Update pitch label and trigger note
     doc.menu[4].label.innerHTML = NOTES[note]
     doc.synth[instrument].triggerAttackRelease(NOTES[note], '4n')
-    //doc.synth.triggerAttack(NOTES[note], 1)
 }
 
 const getColorByChannel = (num) => {return state.channels[num].color}

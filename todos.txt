@@ -9,7 +9,6 @@ Features List
     Click save, have multiple saves available
 
 2. Settings
-    3. selection= (exponential, logarithmic)
     5. ball color is set to the line color after collision
 
 5. playback
@@ -33,5 +32,6 @@ Features List
 Completed:
     1. change ball speed Oct 5, 12:49am
     2. add/remove droppers Oct 5, 1:34am
+    3. selection= (exponential, logarithmic) Oct 5, 2:51
 
 
