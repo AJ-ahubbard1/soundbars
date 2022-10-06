@@ -31,10 +31,10 @@ ALWAYS UPDATE VERSION NUMBER
 Completed:
     1. change ball speed Oct 5, 12:49am
     2. add/remove droppers Oct 5, 1:34am
-    3. selection= (exponential, logarithmic) Oct 5, 2:51
-	4. Ability to delete channels Oct 5, 3:44
-    5. ball color is set to the line color after collision Oct 5, 4:11
-    
+    3. selection= (exponential, logarithmic) Oct 5, 2:51am
+	4. Ability to delete channels Oct 5, 3:44am
+    5. ball color is set to the line color after collision Oct 5, 4:11am
+    Improved menu layout Oct 5, 5:15pm
 
 
 

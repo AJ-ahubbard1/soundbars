@@ -7,29 +7,12 @@
 <body onload="init()">
     <div class="container">
         <div class="menu">
+            <div id="channel-list">
+                <p>Channel List</p>
+                <button id="add-channel" onclick="addChannel()">Add Channel</button><br>
+            </div>
             <span class="sliders">
-                <label id="framerate-label" for="framerate">Frames Per Second:</label><br>
-                <input type="number" id="framerate" name="framerate" step="2" min="30" max="240">
-            </span>
-            <span class="sliders">
-            <label id="gravity-label" for="gravity">Gravity:</label><br>
-            <input type="number" id="gravity" name="gravity" step=".001" min=".001" max=".2">
-            </span>
-            <span class="sliders">
-                <label id="collision-label" for="collision">Collision Threshold:</label><br>
-                <input type="number" id="collision" name="collision" step=".05" min=".05" max="2">
-            </span>
-            <span class="sliders">
-                <label id="ballradius-label" for="ballradius">Ball Radius:</label><br>
-                <input type="number" id="ballradius" name="ballradius" step="1" min="2" max="20">
-            </span>
-            <span class="sliders">
-                <label id="droprate-label" for="droprate">Frames Per Drop:</label><br>
-                <input type="number" id="droprate" name="droprate" step="1" min="0" max="1200">
-                <button id="add-dropper" onClick="addDropper()">Add Dropper</button>
-            </span>
-            <span class="sliders">
-                <label id="pitch-label" for="pitch">00</label><br>
+                <label id="pitch-label" for="pitch">__</label><br>
                 <select id="pitch" name="pitch" onchange="pitchMethod()">
                     <option value="">--pitch selection--</option>
                     <option value="random">random</option>
@@ -40,18 +23,32 @@
                 </select>
             </span>
             <span class="sliders">
-                <label for="playback">Playback: </label><br>
-                <button id="clear-balls" onclick="clearBalls()">clear balls</button>
+                <label id="playback-label" for="playback">Playback:</label><br>
                 <button id="pause" onclick="pauseFrames()">||</button>
-                <button id="play" onclick="resumeFrames()">></button>
+                <button id="play" onclick="resumeFrames()">></button><br>
+                <label id="framerate-label" for="framerate">Frames Per Second:</label><br>
+                <input type="number" id="framerate" name="framerate" step="2" min="30" max="240"><br>                
             </span>
-        </div>
-        <div id="channel-list">
-            <button id="add-channel" onclick="addChannel()">Add Channel</button>
+            <span class="sliders">
+                <button id="add-dropper" onClick="addDropper()">Add Dropper</button>
+                <label id="droprate-label" for="droprate">Frames Per Drop:</label><br>
+                <input type="number" id="droprate" name="droprate" step="1" min="0" max="1200"><br>
+            </span>
+            <span class="sliders">
+                <button id="clear-balls" onclick="clearBalls()">Clear Balls</button><br>
+                <label id="ballradius-label" for="ballradius">Ball Radius:</label><br>
+                <input type="number" id="ballradius" name="ballradius" step="1" min="2" max="20"><br>
+            </span>
+            <span class="sliders">
+            <label id="gravity-label" for="gravity">Gravity:</label><br>
+            <input type="number" id="gravity" name="gravity" step=".001" min=".001" max=".2"><br>
+            <label id="collision-label" for="collision">Collision Threshold:</label><br>
+            <input type="number" id="collision" name="collision" step=".05" min=".05" max="2">
+            </span>
         </div>
         <canvas id="sbCanvas"></canvas>
         <div id="help">
-            <h1>SoundBars v1.0.25</h1>
+            <h1>SoundBars v1.0.26</h1>
             <h4>Created by Joey Hubbard</h4>
             <p>
                 <b>click</b>: create lines<br>
