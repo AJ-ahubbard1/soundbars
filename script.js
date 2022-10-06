@@ -57,7 +57,7 @@ const state = {
     settingDropper: null,
     numChannels: 0,
     currentChannel: 0,
-    channels: []
+    channels: [],
 }
 
 const doc = {
@@ -72,6 +72,7 @@ const doc = {
         {id: 'pitch', input: null, label: null},
         {id: 'droprate', input: null, label: null},
     ],
+    midi: null,
 }
 
 
@@ -91,7 +92,38 @@ function init() {
     window.addEventListener('keydown', handleKeyDown)
     window.addEventListener('keyup', handleKeyUp)
 
-    // Load instruments
+    loadInstruments()
+    addChannel() 
+    document.getElementById('ch-0').checked = true
+
+    navigator.requestMIDIAccess().then( onMIDISuccess, onMIDIFailure );
+
+    startFrames()
+}
+function onMIDISuccess( midiAccess ) {
+    console.log( "MIDI ready!" );
+    doc.midi = midiAccess;  // store in the global (in real usage, would probably keep in an object instance)
+  }
+  
+  function onMIDIFailure(msg) {
+    console.log( "Failed to get MIDI access - " + msg );
+  }
+
+/** Grab DOM elements for each menu element, and their labels, and adds the event listeners */
+const updateMenu = (menu) => {
+    menu.input = document.getElementById(menu.id)
+    menu.label = document.getElementById(`${menu.id}-label`)
+    menu.input.value = settings[menu.id]
+    if(menu.id !== 'pitch') {
+        menu.input.addEventListener('input', handleSlider)
+        //menu.label.innerHTML = `${menu.id}: ${settings[menu.id]}`
+    }
+    return menu
+}
+
+const getMenu = (id) => {return doc.menu.find((m) => {return m.id === id})}
+
+function loadInstruments() {
     doc.synth[0] = new Tone.Sampler({
         urls: {
             /* note map for salamander piano */
@@ -177,26 +209,7 @@ function init() {
     }).toDestination()
     // currently need to manually add instrument names here, in the same order as the doc.synth array above
     settings.instrumentList = ['piano', 'casio', 'synth', 'amsynth', 'fmsynth', 'fatsawtooth', 'membrane', 'metal', 'poly']
-    
-    addChannel()
-    
-    document.getElementById('ch-0').checked = true
-    startFrames()
 }
-
-/** Grab DOM elements for each menu element, and their labels, and adds the event listeners */
-const updateMenu = (menu) => {
-    menu.input = document.getElementById(menu.id)
-    menu.label = document.getElementById(`${menu.id}-label`)
-    menu.input.value = settings[menu.id]
-    if(menu.id !== 'pitch') {
-        menu.input.addEventListener('input', handleSlider)
-        //menu.label.innerHTML = `${menu.id}: ${settings[menu.id]}`
-    }
-    return menu
-}
-
-const getMenu = (id) => {return doc.menu.find((m) => {return m.id === id})}
 
 // Event Handlers
 function handleSlider(e) {
@@ -546,7 +559,7 @@ function playNotes(channel, velocityVector, lineLength) {
     }
     // Update pitch label and trigger note
     doc.menu[4].label.innerHTML = NOTES[note]
-    doc.synth[instrument].triggerAttackRelease(NOTES[note], '4n')
+    doc.synth[instrument].triggerAttackRelease(NOTES[note], "4n")
 }
 
 const getColorByChannel = (num) => {return state.channels[num].color}

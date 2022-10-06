@@ -185,6 +185,6 @@ input[type="radio"] {
  
     }
     #help-btn {
-        right: 18px;
+        left: 0;
     }
 }
