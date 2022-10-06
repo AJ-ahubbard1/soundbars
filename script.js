@@ -72,7 +72,6 @@ const doc = {
         {id: 'pitch', input: null, label: null},
         {id: 'droprate', input: null, label: null},
     ],
-    midi: null,
 }
 
 
@@ -96,18 +95,8 @@ function init() {
     addChannel() 
     document.getElementById('ch-0').checked = true
 
-    navigator.requestMIDIAccess().then( onMIDISuccess, onMIDIFailure );
-
     startFrames()
 }
-function onMIDISuccess( midiAccess ) {
-    console.log( "MIDI ready!" );
-    doc.midi = midiAccess;  // store in the global (in real usage, would probably keep in an object instance)
-  }
-  
-  function onMIDIFailure(msg) {
-    console.log( "Failed to get MIDI access - " + msg );
-  }
 
 /** Grab DOM elements for each menu element, and their labels, and adds the event listeners */
 const updateMenu = (menu) => {
